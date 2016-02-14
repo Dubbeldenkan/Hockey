@@ -1,15 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package hockey;
 
-/**
- *
- * @author ägarenn
- */
+import java.util.ArrayList;
+
 public class Team {
+    private ArrayList<Player> players;
+    private int points = 0;
+    private boolean ready = false;
+
+    public Team(ArrayList<Player> players) {
+        this.players = players;
+    }
     
 }
