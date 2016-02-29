@@ -80,11 +80,11 @@ public class Paint extends JPanel {
             {
                 g2d.setColor(Color.BLUE);
             }
-            double xCoord = convertObject2Graphics(team.get(i).getCoord().getX(), rinkWidth)
+            double xCoord = convertObject2GraphicsX(team.get(i).getCoord().getX(), rinkWidth)
                     + rinkWidthStart;
-            double yCoord = convertObject2Graphics(team.get(i).getCoord().getY(), rinkHeight)
+            double yCoord = convertObject2GraphicsY(team.get(i).getCoord().getY(), rinkHeight)
                     + rinkHeightStart;
-            double diameter = convertObject2Graphics(team.get(i).getRadius(), rinkWidth);
+            double diameter = convertObject2GraphicsX(team.get(i).getRadius(), rinkWidth);
             g2d.fillOval((int) (xCoord - diameter/2),(int) (yCoord - diameter/2), 
                     (int) diameter, (int) diameter);
             if(teamNumber == 0)
@@ -105,11 +105,11 @@ public class Paint extends JPanel {
     {
         Graphics2D g2d = (Graphics2D) g.create();
         g2d.setColor(Color.DARK_GRAY);
-        double xCoord = convertObject2Graphics(puck.getCoord().getX(), rinkWidth)
+        double xCoord = convertObject2GraphicsX(puck.getCoord().getX(), rinkWidth)
                 + rinkWidthStart;
-        double yCoord = convertObject2Graphics(puck.getCoord().getY(), rinkHeight)
+        double yCoord = convertObject2GraphicsY(puck.getCoord().getY(), rinkHeight)
                 + rinkHeightStart;
-        double diameter = convertObject2Graphics(puck.getRadius(), rinkWidth);
+        double diameter = convertObject2GraphicsX(puck.getRadius(), rinkWidth);
         g2d.fillOval((int) (xCoord - diameter/2),(int) (yCoord - diameter/2), 
                 (int) diameter, (int) diameter);
     }
@@ -125,9 +125,14 @@ public class Paint extends JPanel {
             (int) rinkHeightStart - rinkHeight/40);
     }
     
-    private double convertObject2Graphics(double percent, double realSize)
+    private double convertObject2GraphicsX(double percent, double realSize)
     {
         return percent/100*realSize;
+    }
+    
+    private double convertObject2GraphicsY(double percent, double realSize)
+    {
+        return percent/50*realSize;
     }
     
     private void paintRink(Graphics g)
@@ -270,10 +275,10 @@ public class Paint extends JPanel {
         g2d.setColor(Color.BLACK);
         for(int i = 0; i < team.getPlayers().size(); i++)
         {
-            int xKoord = (int) convertObject2Graphics(team.getTeamMember(i).getCoord().getX(), rinkWidth)
+            int xKoord = (int) convertObject2GraphicsX(team.getTeamMember(i).getCoord().getX(), rinkWidth)
                     + rinkWidthStart;
             
-            int yKoord = (int) convertObject2Graphics(team.getTeamMember(i).getCoord().getY(), rinkHeight)
+            int yKoord = (int) convertObject2GraphicsY(team.getTeamMember(i).getCoord().getY(), rinkHeight)
                     + rinkHeightStart;
             double forceRatio = forceValue[i]/maxForce;
             double length = (int) (forceRatio*arrowMaxLength);
@@ -289,8 +294,8 @@ public class Paint extends JPanel {
         int[] directionValues = new int[team.getPlayers().size()]; 
         for(int i = 0; i < team.getPlayers().size(); i++)
         {
-            String str = directionTextField[i].getText().replaceAll("[^\\d-]", "");
-            if(!str.equals("") && !str.equals("-")) {
+            String str = directionTextField[i].getText().replaceAll("[^\\d]", "");
+            if(!str.equals("")) {
                 directionValues[i] = Integer.parseInt(str)%360;
             }
         }

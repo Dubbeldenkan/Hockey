@@ -2,14 +2,14 @@ package hockey;
 
 public class GameObject {
     
-        public GameObject(Coord coord, int radius, float mass) {
+        public GameObject(Coord coord, int diameter, float mass) {
         this.coord = coord;
-        this.radius = radius;
+        this.diameter = diameter;
         this.mass = mass;
     }
     
     protected Coord coord;
-    protected int radius; 
+    protected int diameter; 
     protected float mass; // in kg
     protected int teamNumber;
     protected double force = 0;
@@ -21,7 +21,7 @@ public class GameObject {
     }
 
     public void setRadius(int radius) {
-        this.radius = radius;
+        this.diameter = radius;
     }
 
     public void setWeight(float weight) {
@@ -33,7 +33,7 @@ public class GameObject {
     }
 
     public int getRadius() {
-        return radius;
+        return diameter;
     }
 
     public void setForce(double force) {
@@ -74,7 +74,35 @@ public class GameObject {
         double acceleration = force/mass;
         velocity =+ acceleration;
         double distance = velocity*timeStepInS;
-        coord.moveX((float) (distance*Math.cos(direction*Math.PI/180)));
-        coord.moveY((float) (distance*Math.sin(direction*Math.PI/180)));
+        double movementInX = distance*Math.cos(direction*Math.PI/180);
+        double movementInY = distance*Math.sin(direction*Math.PI/180); //todo: är det fel riktning?
+        collision(movementInX, movementInY);
+        coord.moveX((float) (movementInX));
+        coord.moveY((float) (movementInY));
+    }
+    
+    private void collision(double movementInX, double movementInY)
+    {
+        if((coord.getX() - ((double) diameter)/2 < 0) && 
+                ((direction > 90) || (direction > 270)))
+        {
+            direction = (direction)%360;
+            //kolla på formel för reflektion
+        }
+        else if((coord.getX() + ((double) diameter)/2 > 100) &&
+                ((direction > 90) || (direction < 270)))
+        {
+            direction = direction - (direction - 180);
+        }
+        
+        /*if((coord.getY() - ((double) diameter)/2 < 0) && 
+                ((direction > 90) || (direction > 270)))
+        {
+            direction = (direction + 180)%360;
+        }
+        else if(coord.getY() + ((double) diameter)/2 > 100)
+        {
+            direction = direction - (direction - 180);
+        }*/
     }
 }

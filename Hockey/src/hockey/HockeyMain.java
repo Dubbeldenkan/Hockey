@@ -19,12 +19,13 @@ public class HockeyMain {
 
     private Paint paint;
     private Timer repaintTimer;
-    //private ArrayList<Team> teams = new ArrayList<>();;
+    private Timer endTurnRepaintTimer;
     private Team team0;
     private Team team1;
     private Puck puck;
     private int teamSize = 3;
     final private int paintFreq = 1;
+    final private int endTurnStepTime = 10;
 
     public HockeyMain() {
         EventQueue.invokeLater(new Runnable() {
@@ -45,8 +46,6 @@ public class HockeyMain {
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
 
-                
-                //testa att sätta ut action som en separat funktion
                 repaintTimer = new Timer(1000 / paintFreq, new ActionListener() {
                 @Override
                     public void actionPerformed(ActionEvent e) {
@@ -54,28 +53,37 @@ public class HockeyMain {
                         paint.repaint();
                     }
                 });
-                //repaintTimer = new Timer(1000 / paintFreq, null);
                 repaintTimer.setInitialDelay(0);
                 repaintTimer.setRepeats(true);
                 repaintTimer.setCoalesce(true);
 
+                endTurnRepaintTimer = new Timer(endTurnStepTime, new ActionListener() {
+                @Override
+                    public void actionPerformed(ActionEvent e) {
+                        endTurnLoop();
+                    }
+                });
+                endTurnRepaintTimer.setInitialDelay(0);
+                endTurnRepaintTimer.setRepeats(false);
+                endTurnRepaintTimer.setCoalesce(true);
+                
                 // initiera
                 ArrayList<Player> playerListTeam1 = new ArrayList<>();
+                playerListTeam1.add(new Player(new Coord(35, 12)));
                 playerListTeam1.add(new Player(new Coord(35, 25)));
-                playerListTeam1.add(new Player(new Coord(35, 50)));
-                playerListTeam1.add(new Player(new Coord(35, 75)));
+                playerListTeam1.add(new Player(new Coord(35, 38)));
                 team0 = new Team(playerListTeam1, 0);
                 ArrayList<Player> playerListTeam2 = new ArrayList<>();
+                playerListTeam2.add(new Player(new Coord(65, 12)));
                 playerListTeam2.add(new Player(new Coord(65, 25)));
-                playerListTeam2.add(new Player(new Coord(65, 50)));
-                playerListTeam2.add(new Player(new Coord(65, 75)));
+                playerListTeam2.add(new Player(new Coord(65, 38)));
                 team1 = new Team(playerListTeam2, 1);
                 
                 paint.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "endTurn");
                 paint.getActionMap().put("endTurn", new KeyActionEvent("END_TURN"));
 
                 //initiera puck
-                puck = new Puck(new Coord(50, 50));
+                puck = new Puck(new Coord(50, 25));
                 
                 repaintTimer.start();
             }
@@ -98,19 +106,21 @@ public class HockeyMain {
             {
                 setDirectionAndForceValues(team0);
                 paint.resetTextField(team0);
-                boolean anyObjectMovement = true;
-                while(anyObjectMovement)
+                endTurnRepaintTimer.setRepeats(true);
+                endTurnRepaintTimer.start();
+            }
+            
+            private void endTurnLoop()
+            {
+                if(checkAnyMovement())
                 {
-                    long stepTime = 10;
-                    moveAllObjects(stepTime);
+                    moveAllObjects(endTurnStepTime);
                     transferData2Paint();
                     paint.repaint();
-                    anyObjectMovement = checkAnyMovement();
-                    /*try {
-                        Thread.sleep(stepTime);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(HockeyMain.class.getName()).log(Level.SEVERE, null, ex);
-                    }*/
+                }
+                else
+                {
+                    endTurnRepaintTimer.setRepeats(false);
                 }
             }
             
