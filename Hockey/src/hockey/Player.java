@@ -1,9 +1,9 @@
 package hockey;
 
-public class Player extends gameObject{
+public class Player extends GameObject{
 
-    public Player(Coordinates coord) {
-        super(coord, 7, 60);
+    public Player(Coord coord) {
+        super(coord, 5, 60);
     }
     
 }

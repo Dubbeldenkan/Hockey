@@ -1,8 +1,8 @@
 package hockey;
 
-public class Puck extends gameObject{
+public class Puck extends GameObject{
 
-    public Puck(Coordinates coord) {
+    public Puck(Coord coord) {
         super(coord, 3, 1);
     }
     
