@@ -69,14 +69,14 @@ public class HockeyMain {
                 
                 // initiera
                 ArrayList<Player> playerListTeam1 = new ArrayList<>();
-                playerListTeam1.add(new Player(new Coord(35, 12)));
-                playerListTeam1.add(new Player(new Coord(35, 25)));
-                playerListTeam1.add(new Player(new Coord(35, 38)));
+                playerListTeam1.add(new Player(new Coord(35, 12), 0));
+                playerListTeam1.add(new Player(new Coord(35, 25), 3));
+                playerListTeam1.add(new Player(new Coord(35, 38), 8));
                 team0 = new Team(playerListTeam1, 0);
                 ArrayList<Player> playerListTeam2 = new ArrayList<>();
-                playerListTeam2.add(new Player(new Coord(65, 12)));
-                playerListTeam2.add(new Player(new Coord(65, 25)));
-                playerListTeam2.add(new Player(new Coord(65, 38)));
+                playerListTeam2.add(new Player(new Coord(65, 12), 0));
+                playerListTeam2.add(new Player(new Coord(65, 25), 1));
+                playerListTeam2.add(new Player(new Coord(65, 38),3 ));
                 team1 = new Team(playerListTeam2, 1);
                 
                 paint.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "endTurn");
@@ -138,15 +138,35 @@ public class HockeyMain {
             
             private void moveAllObjects(long timeStep)
             {
-                for(int i = 0; i < team0.getPlayers().size(); i++)
-                {
-                    team0.getTeamMember(i).moveObject(timeStep);
-                }
-                for(int i = 0; i < team1.getPlayers().size(); i++)
-                {
-                    team1.getTeamMember(i).moveObject(timeStep);
+                ArrayList<Player> playerArray = new ArrayList<>();
+                playerArray.addAll(team0.getPlayers());
+                playerArray.addAll(team1.getPlayers());
+                for (Player player : playerArray) {
+                    player.moveObject(timeStep);
+                    checkCollisionWithOtherObjectForPlayer(player);
                 }
                 puck.moveObject(timeStep);
+                checkCollisionWithObjectForPuck();
+            }
+            
+            private void checkCollisionWithOtherObjectForPlayer(Player player)
+            {
+                ArrayList<Player> playerArray = new ArrayList<>();
+                playerArray.addAll(team0.getPlayers());
+                playerArray.addAll(team1.getPlayers());
+                for (Player otherPlayer : playerArray) 
+                {
+                    if(!player.equals(otherPlayer))
+                    {
+                        player.checkCollisionWithObject(otherPlayer);
+                    }
+                }
+                player.checkCollisionWithObject(puck);
+            }
+            
+            private void checkCollisionWithObjectForPuck()
+            {
+                
             }
             
             private boolean checkAnyMovement()
@@ -176,7 +196,7 @@ public class HockeyMain {
             {
                 paint.setTeamA(team0);
                 paint.setTeamB(team1);
-                paint.setPuck(new GraphicalCircle(puck.getCoord(), puck.getRadius()));
+                paint.setPuck(new GraphicalCircle(puck.getCoord(), puck.getDiameter()));
             }
         });
     }

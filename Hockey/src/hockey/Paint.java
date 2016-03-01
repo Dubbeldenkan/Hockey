@@ -84,7 +84,7 @@ public class Paint extends JPanel {
                     + rinkWidthStart;
             double yCoord = convertObject2GraphicsY(team.get(i).getCoord().getY(), rinkHeight)
                     + rinkHeightStart;
-            double diameter = convertObject2GraphicsX(team.get(i).getRadius(), rinkWidth);
+            double diameter = convertObject2GraphicsX(team.get(i).getDiameter(), rinkWidth);
             g2d.fillOval((int) (xCoord - diameter/2),(int) (yCoord - diameter/2), 
                     (int) diameter, (int) diameter);
             if(teamNumber == 0)
@@ -96,7 +96,8 @@ public class Paint extends JPanel {
                 g2d.setColor(Color.RED);
             }
             g2d.setFont(new Font("TimesRoman", Font.BOLD, rinkHeight/15));
-            g2d.drawString(String.valueOf(i), (int) xCoord - rinkHeight/60,
+            g2d.drawString(String.valueOf(team.get(i).getShirtNumber()), 
+                    (int) xCoord - rinkHeight/60,
                     (int) yCoord + rinkHeight/40);
         }
     }

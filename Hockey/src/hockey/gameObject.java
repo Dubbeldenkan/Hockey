@@ -20,8 +20,8 @@ public class GameObject {
         this.coord = coord;
     }
 
-    public void setRadius(int radius) {
-        this.diameter = radius;
+    public void setDiameter(int diameter) {
+        this.diameter = diameter;
     }
 
     public void setWeight(float weight) {
@@ -32,7 +32,7 @@ public class GameObject {
         return coord;
     }
 
-    public double getRadius() {
+    public double getDiameter() {
         return diameter;
     }
 
@@ -155,5 +155,23 @@ public class GameObject {
         int wallDirection = (wallNormal + 270)%360;
         int diff = (360 + direction - wallDirection)%360;
         direction = (360 + direction - 2*diff)%360;
+    }
+    
+    public void checkCollisionWithObject(GameObject object)
+    {
+        if(calculateDistance(this.getCoord(), object.getCoord()) < 
+                (diameter/2 + object.getDiameter()/2))
+        {
+            int dummyFörAttDebuga = 1;
+            //kolla hur en fysikalisk stöt ser ut
+        }
+    }
+    
+    private double calculateDistance(Coord coord1, Coord coord2)
+    {
+        double xDistance = Math.pow(coord1.getX() - coord2.getX(), 2);
+        double yDistance = Math.pow(coord1.getY() - coord2.getY(), 2);
+        double distance = Math.sqrt(xDistance + yDistance);
+        return distance;
     }
 }
