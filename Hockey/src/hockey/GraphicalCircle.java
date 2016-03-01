@@ -5,13 +5,13 @@ import hockey.Coord;
 
 public class GraphicalCircle {
     
-    public GraphicalCircle(Coord coord, int radius) {
+    public GraphicalCircle(Coord coord, double radius) {
         this.coord = coord;
         this.radius = radius;
     }
     
     protected Coord coord;
-    protected int radius;
+    protected double radius;
 
     public void setCoord(Coord coord) {
         this.coord = coord;
@@ -25,7 +25,7 @@ public class GraphicalCircle {
         return coord;
     }
 
-    public int getRadius() {
+    public double getRadius() {
         return radius;
     }
     

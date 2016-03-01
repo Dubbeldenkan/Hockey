@@ -294,9 +294,14 @@ public class Paint extends JPanel {
         int[] directionValues = new int[team.getPlayers().size()]; 
         for(int i = 0; i < team.getPlayers().size(); i++)
         {
-            String str = directionTextField[i].getText().replaceAll("[^\\d]", "");
-            if(!str.equals("")) {
-                directionValues[i] = Integer.parseInt(str)%360;
+            String str = directionTextField[i].getText().replaceAll("[^\\d-]", "");
+            if(!str.equals("") && !str.equals("-")) {
+                int direction = Integer.parseInt(str)%360;
+                if(direction < 0)
+                {
+                    direction = 360 + direction;
+                }
+                directionValues[i] = direction;
             }
         }
         return directionValues;

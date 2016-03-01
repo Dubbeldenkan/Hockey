@@ -9,7 +9,7 @@ public class GameObject {
     }
     
     protected Coord coord;
-    protected int diameter; 
+    protected double diameter; 
     protected float mass; // in kg
     protected int teamNumber;
     protected double force = 0;
@@ -32,7 +32,7 @@ public class GameObject {
         return coord;
     }
 
-    public int getRadius() {
+    public double getRadius() {
         return diameter;
     }
 
@@ -76,33 +76,84 @@ public class GameObject {
         double distance = velocity*timeStepInS;
         double movementInX = distance*Math.cos(direction*Math.PI/180);
         double movementInY = distance*Math.sin(direction*Math.PI/180); //todo: är det fel riktning?
-        collision(movementInX, movementInY);
+        collisionToRink(movementInX, movementInY);
         coord.moveX((float) (movementInX));
         coord.moveY((float) (movementInY));
     }
     
-    private void collision(double movementInX, double movementInY)
+    private void collisionToRink(double movementInX, double movementInY)
     {
-        if((coord.getX() - ((double) diameter)/2 < 0) && 
-                ((direction > 90) || (direction > 270)))
-        {
-            direction = (direction)%360;
-            //kolla på formel för reflektion
-        }
-        else if((coord.getX() + ((double) diameter)/2 > 100) &&
-                ((direction > 90) || (direction < 270)))
-        {
-            direction = direction - (direction - 180);
-        }
+        double nextXPos = coord.getX() + movementInX;
+        double nextYPos = coord.getY() + movementInY;
+        double sizeOfArc = 7.5;
+        double radius = diameter/2;
         
-        /*if((coord.getY() - ((double) diameter)/2 < 0) && 
-                ((direction > 90) || (direction > 270)))
+        //vänster högre hörn
+        if(direction < 315 && direction > 135 && 
+                (nextXPos < sizeOfArc + radius) &&
+                (nextYPos < sizeOfArc - nextXPos))
         {
-            direction = (direction + 180)%360;
+            int wallNormal = (((int) (Math.atan((nextYPos - sizeOfArc)/
+                    (nextXPos - sizeOfArc))*180/Math.PI)) + 360)%360;
+            setDirectionInCorner(wallNormal);
         }
-        else if(coord.getY() + ((double) diameter)/2 > 100)
+        //vänster nedre hörn
+        else if(direction < 225 && direction > 45 && 
+                (nextXPos < sizeOfArc + radius) &&
+                (nextYPos > 50 - sizeOfArc + nextXPos))
         {
-            direction = direction - (direction - 180);
-        }*/
+            int wallNormal = (((int) (Math.atan((nextYPos + sizeOfArc - 50)/
+                    (nextXPos - sizeOfArc))*180/Math.PI)) + 360)%360;
+            setDirectionInCorner(wallNormal);
+        }
+        //högra över hörn
+        else if(((direction < 45) || (direction > 225)) && 
+                (nextXPos > 100 - sizeOfArc - radius) &&
+                (nextYPos < sizeOfArc - (100 - nextXPos)))
+        {
+            int wallNormal = (((int) (Math.atan((nextYPos - sizeOfArc)/
+                    (nextXPos + sizeOfArc - 100))*180/Math.PI)) + 360)%360;
+            setDirectionInCorner(wallNormal);
+        }
+        //högra nedre hörn
+        else if(((direction < 135) || (direction > 315)) && 
+                (nextXPos > 100 - sizeOfArc - radius) &&
+                (nextYPos > 50 - sizeOfArc + (100 - nextXPos)))
+        {
+            int wallNormal = (((int) (Math.atan((nextYPos + sizeOfArc - 50)/
+                    (nextXPos + sizeOfArc - 100))*180/Math.PI)) + 360)%360;
+            setDirectionInCorner(wallNormal);
+        }
+        else
+        {
+            if(((nextXPos - radius) < 0) && 
+                    ((direction > 90) || (direction < 270)))
+            {
+                direction = (540 - direction)%360;
+            }
+            else if(((nextXPos + radius) > 100) &&
+                    ((direction < 90) || (direction > 270)))
+            {
+                direction = (540 - direction)%360;
+            }
+
+            if(((nextYPos - radius) < 0) && 
+                    (direction > 180))
+            {
+                direction = (360 - direction)%360;
+            }
+            else if(((nextYPos + radius) > 50) &&
+                    (direction < 180))
+            {
+                direction = (360 - direction)%360;
+            }
+        }
+    }
+    
+    private void setDirectionInCorner(int wallNormal)
+    {
+        int wallDirection = (wallNormal + 270)%360;
+        int diff = (360 + direction - wallDirection)%360;
+        direction = (360 + direction - 2*diff)%360;
     }
 }
