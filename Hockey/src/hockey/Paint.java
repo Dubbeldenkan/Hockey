@@ -208,7 +208,7 @@ public class Paint extends JPanel {
         int yStepSize = rinkHeight/team.getPlayers().size();
         for(int i = 0; i < team.getPlayers().size(); i++)
         {
-            g2d.drawString(String.valueOf(i), xCoord,
+            g2d.drawString(String.valueOf(team.getPlayer(i).getShirtNumber()), xCoord,
                 yCoord + yStepSize/2 + i*yStepSize);
         }
     }

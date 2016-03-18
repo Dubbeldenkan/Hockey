@@ -35,6 +35,18 @@ public class GameObject {
     public double getDiameter() {
         return diameter;
     }
+    
+    public int getDirection(){
+        return direction;
+    }
+    
+    public double getVelocity(){
+        return velocity;
+    }
+    
+    public double getForce(){
+            return force;
+    }
 
     public void setForce(double force) {
         this.force = force;
@@ -44,7 +56,7 @@ public class GameObject {
         this.direction = direction;
     }
 
-    public float getWeight() {
+    public float getMass() {
         return mass;
     }
     
@@ -74,8 +86,8 @@ public class GameObject {
         double acceleration = force/mass;
         velocity =+ acceleration;
         double distance = velocity*timeStepInS;
-        double movementInX = distance*Math.cos(direction*Math.PI/180);
-        double movementInY = distance*Math.sin(direction*Math.PI/180); //todo: är det fel riktning?
+        double movementInX = distance*cos(direction);
+        double movementInY = distance*sin(direction);
         collisionToRink(movementInX, movementInY);
         coord.moveX((float) (movementInX));
         coord.moveY((float) (movementInY));
@@ -157,14 +169,104 @@ public class GameObject {
         direction = (360 + direction - 2*diff)%360;
     }
     
-    public void checkCollisionWithObject(GameObject object)
+    public void checkCollisionWithObject(GameObject objectB, int stepTime)
     {
-        if(calculateDistance(this.getCoord(), object.getCoord()) < 
-                (diameter/2 + object.getDiameter()/2))
+        if(checkIfObjectWillCollide(objectB, stepTime))
         {
-            int dummyFörAttDebuga = 1;
-            //kolla hur en fysikalisk stöt ser ut
+            int collisionDirection = calculateDirectionToObject(objectB.getCoord());
+            //int objectACollisionDirectionDiff = (360 + direction - collisionDirection)%360;
+            int objectACollisionDirectionDiff = direction - collisionDirection;
+            int objectBCollisionDirectionDiff = (360 + objectB.getDirection() - collisionDirection)%360;
+
+            double objectAOldP = velocity*mass;
+            double objectBOldP = objectB.getMass()*objectB.getVelocity();
+            
+            double objectANewP = Math.abs(calculateInvertedForceRatio(objectACollisionDirectionDiff)*objectAOldP + 
+                    calculateForceRatio(objectBCollisionDirectionDiff)*objectBOldP);
+            double objectBNewP = Math.abs(calculateInvertedForceRatio(objectBCollisionDirectionDiff)*objectBOldP + 
+                    calculateForceRatio(objectACollisionDirectionDiff)*objectAOldP);
+            
+            force = force - (objectAOldP - objectANewP);
+            double objectBForce = objectB.getForce() - (objectBOldP - objectBNewP);
+            
+            int objectBDirection;
+            if(objectBOldP == 0)
+            {
+                objectBDirection = collisionDirection;
+            }
+            else
+            {
+                objectBDirection = objectB.getDirection();
+            }
+            direction = (360 + (int) (collisionDirection + 90*Math.signum(direction - collisionDirection)))%360;
+            
+            objectB.setDirection(objectBDirection);
+            objectB.setForce(objectBForce);
         }
+    }
+    
+    private boolean checkIfObjectWillCollide(GameObject objectB, int stepTimeMs)
+    {
+        double stepTimeS = (double) stepTimeMs/1000;
+        Coord coordA = new Coord(coord.getX() + stepTimeS*velocity*cos(direction), 
+                coord.getY() + stepTimeS*velocity*sin(direction));
+        Coord coordB = new Coord(objectB.getCoord().getX() + 
+                stepTimeS*objectB.getVelocity()*cos(objectB.getDirection()), 
+                objectB.getCoord().getY() +
+                        stepTimeS*objectB.getVelocity()*sin(objectB.getDirection()));
+        double distance = calculateDistance(coordA, coordB);
+        boolean result = distance < (diameter/2 + objectB.getDiameter()/2);
+        if(result)
+        {
+            int test = 2;
+        }
+        return result;
+    }
+    
+    private double calculateInvertedForceRatio(int collisionDiff)
+    {
+        double forceRatio = calculateForceRatio(collisionDiff);
+        double invertedForceRatio;
+        if(forceRatio == 0)
+        {
+            invertedForceRatio = 0;
+        }
+        else
+        {
+            invertedForceRatio = forceRatio/Math.abs(forceRatio) - forceRatio;
+        }
+        return invertedForceRatio;
+    }
+    
+    private double calculateForceRatio(int collisionDiff)
+    {
+        double collisionRatio = ((double) collisionDiff - 90*Math.signum(collisionDiff))/90;
+        if(collisionRatio > 1 || collisionRatio < -1)
+        {
+            collisionRatio = 0;
+        }
+        return collisionRatio;
+    }
+    
+    private int calculateDirectionToObject(Coord objectCoord)
+    {
+        int angle;
+        double xDiff = objectCoord.getX() - coord.getX();
+        double yDiff = objectCoord.getY() - coord.getY();
+        if(xDiff != 0)
+        {
+            angle = (int) (Math.atan(yDiff/xDiff)*180/Math.PI);
+            angle = (360 + angle)%360;
+        }
+        else
+        {
+            angle = 0;
+        }
+        if(xDiff < 0)
+        {
+            angle = (180 + angle)%360;
+        }
+        return angle;
     }
     
     private double calculateDistance(Coord coord1, Coord coord2)
@@ -173,5 +275,15 @@ public class GameObject {
         double yDistance = Math.pow(coord1.getY() - coord2.getY(), 2);
         double distance = Math.sqrt(xDistance + yDistance);
         return distance;
+    }
+    
+    private double cos(double angle)
+    {
+        return Math.cos(angle*Math.PI/180);
+    }
+    
+    private double sin(double angle)
+    {
+        return Math.sin(angle*Math.PI/180);
     }
 }

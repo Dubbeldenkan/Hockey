@@ -28,6 +28,11 @@ public class Team {
     public ArrayList<Player> getPlayers() {
         return players;
     }
+    
+    public Player getPlayer(int index)
+    {
+        return players.get(index);
+    }
 
     public int getPoints() {
         return points;

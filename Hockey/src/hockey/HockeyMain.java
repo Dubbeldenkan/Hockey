@@ -158,10 +158,10 @@ public class HockeyMain {
                 {
                     if(!player.equals(otherPlayer))
                     {
-                        player.checkCollisionWithObject(otherPlayer);
+                        player.checkCollisionWithObject(otherPlayer, endTurnStepTime);
                     }
                 }
-                player.checkCollisionWithObject(puck);
+                player.checkCollisionWithObject(puck, endTurnStepTime);
             }
             
             private void checkCollisionWithObjectForPuck()
