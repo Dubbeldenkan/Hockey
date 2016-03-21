@@ -303,6 +303,7 @@ public class Paint extends JPanel {
                     direction = 360 + direction;
                 }
                 directionValues[i] = direction;
+                directionTextField[i].setText(String.valueOf(direction));
             }
         }
         return directionValues;
@@ -316,6 +317,7 @@ public class Paint extends JPanel {
             String str = forceTextField[i].getText().replaceAll("[^\\d]", "");
             if(!str.equals("")) {
                 forceValues[i] = Math.min(Integer.parseInt(str), 50);
+                forceTextField[i].setText(String.valueOf(forceValues[i]));
             }
         }
         return forceValues;
