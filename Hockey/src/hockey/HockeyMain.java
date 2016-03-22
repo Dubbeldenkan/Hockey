@@ -39,7 +39,7 @@ public class HockeyMain {
                 }
 
                 // sätt upp banan
-                paint = new Paint(teamSize);
+                paint = new Paint(teamSize, thisIsAServer);
                 JFrame frame = new JFrame("Hockey");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setLayout(new BorderLayout());
@@ -106,8 +106,16 @@ public class HockeyMain {
                 
             private void endTurn()
             {
-                setDirectionAndForceValues(team0);
-                paint.resetTextField(team0);
+                if(thisIsAServer)
+                {
+                    setDirectionAndForceValues(team0);
+                    paint.resetTextField(team0);
+                }
+                else
+                {
+                    setDirectionAndForceValues(team1);
+                    paint.resetTextField(team1);
+                }
                 endTurnRepaintTimer.setRepeats(true);
                 endTurnRepaintTimer.start();
             }

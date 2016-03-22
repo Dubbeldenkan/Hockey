@@ -31,17 +31,18 @@ public class Paint extends JPanel {
     private Team team0;
     private Team team1;
     private GraphicalCircle puck;
+    private final boolean thisIsAServer;
     //final private Timer repaintTimer;
     
     //final private int paintFreq = 25;
 
-    public Paint(int teamSize) {  
+    public Paint(int teamSize, boolean thisIsAServer) {  
+        this.thisIsAServer = thisIsAServer;
         directionTextField = new JTextField[teamSize];
         forceTextField = new JTextField[teamSize];
         directionValue = new int[teamSize];
         forceValue = new int[teamSize];
         setupTextFields(teamSize);
-        
     }
 
     @Override
@@ -62,7 +63,14 @@ public class Paint extends JPanel {
             paintPoints(g, team0.getPoints(), team1.getPoints());
             paintStats(g, team0);
             paintStats(g, team1);
-            paintArrow(g, team0);
+            if(thisIsAServer)
+            {
+                paintArrow(g, team0);
+            }
+            else
+            {
+                paintArrow(g, team1);
+            }
         }
     }
     
@@ -215,16 +223,24 @@ public class Paint extends JPanel {
     
     private void setupTextFields(int teamSize)
     {
-        //int yStepSize = rinkHeight/team.getPlayers().size();
         int yStepSize = rinkHeight/teamSize;
         setLayout(null);
+        int xPosForTextFields;
+        if(thisIsAServer)
+        {
+            xPosForTextFields = rinkWidthStart/10;
+        }
+        else
+        {
+            xPosForTextFields = rinkWidthStart*11/10 + rinkWidth;
+        }
         for(int yPos = 0; yPos < teamSize; yPos++)
         {
             forceTextField[yPos] = new JTextField(6);
             this.add(forceTextField[yPos]);
             forceTextField[yPos].setBounds(new Rectangle(new Point(100, 100), forceTextField[yPos].getPreferredSize()));
             this.setVisible(true);
-            forceTextField[yPos].setLocation(rinkWidthStart/10, yStepSize*(1 + yPos));
+            forceTextField[yPos].setLocation(xPosForTextFields, yStepSize*(1 + yPos));
             
             forceTextField[yPos].getDocument().addDocumentListener(new DocumentListener() {
                 @Override
@@ -246,7 +262,7 @@ public class Paint extends JPanel {
             this.add(directionTextField[yPos]);
             directionTextField[yPos].setBounds(new Rectangle(new Point(100, 100), directionTextField[yPos].getPreferredSize()));
             this.setVisible(true);
-            directionTextField[yPos].setLocation(rinkWidthStart/10, yStepSize*(1 + yPos) + rinkHeight/20);
+            directionTextField[yPos].setLocation(xPosForTextFields, yStepSize*(1 + yPos) + rinkHeight/20);
             
             directionTextField[yPos].getDocument().addDocumentListener(new DocumentListener() {
                 @Override
