@@ -94,7 +94,7 @@ public class HockeyMain {
                 {
                     try
                     {
-                       server = new Server(1000);
+                       server = new Server(6066);
                     }catch(IOException e)
                     {
                        e.printStackTrace();
@@ -103,7 +103,7 @@ public class HockeyMain {
                 }
                 else
                 {
-                    client = new Client();
+                    client = new Client("localhost", 6066);
                 }
                 
                 repaintTimer.start();
