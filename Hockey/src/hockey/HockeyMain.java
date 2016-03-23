@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,6 +18,8 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 public class HockeyMain {
 
+    private Server server;
+    private Client client;
     private Paint paint;
     private Timer repaintTimer;
     private Timer endTurnRepaintTimer;
@@ -76,9 +79,9 @@ public class HockeyMain {
                 playerListTeam1.add(new Player(new Coord(35, 38), 8));
                 team0 = new Team(playerListTeam1, 0);
                 ArrayList<Player> playerListTeam2 = new ArrayList<>();
-                playerListTeam2.add(new Player(new Coord(65, 12), 0));
-                playerListTeam2.add(new Player(new Coord(65, 25), 1));
-                playerListTeam2.add(new Player(new Coord(65, 38),3 ));
+                playerListTeam2.add(new Player(new Coord(65, 12), 2));
+                playerListTeam2.add(new Player(new Coord(65, 25), 5));
+                playerListTeam2.add(new Player(new Coord(65, 38), 9));
                 team1 = new Team(playerListTeam2, 1);
                 
                 paint.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "endTurn");
@@ -87,133 +90,149 @@ public class HockeyMain {
                 //initiera puck
                 puck = new Puck(new Coord(50, 25));
                 
-                repaintTimer.start();
-            }
-            
-            class KeyActionEvent extends AbstractAction {
-
-                public KeyActionEvent(String keyStrokeName) {
-                    putValue(Action.NAME, keyStrokeName);
-                }
-
-                @Override
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    if (getValue(Action.NAME).equals("END_TURN")) {
-                        endTurn();
-                    }
-                }
-            }
-                
-            private void endTurn()
-            {
                 if(thisIsAServer)
                 {
-                    setDirectionAndForceValues(team0);
-                    paint.resetTextField(team0);
+                    try
+                    {
+                       server = new Server(1000);
+                    }catch(IOException e)
+                    {
+                       e.printStackTrace();
+                    }
+                    server.run();
                 }
                 else
                 {
-                    setDirectionAndForceValues(team1);
-                    paint.resetTextField(team1);
+                    client = new Client();
                 }
-                endTurnRepaintTimer.setRepeats(true);
-                endTurnRepaintTimer.start();
-            }
-            
-            private void endTurnLoop()
-            {
-                if(checkAnyMovement())
-                {
-                    moveAllObjects(endTurnStepTime);
-                    transferData2Paint();
-                    paint.repaint();
-                }
-                else
-                {
-                    endTurnRepaintTimer.setRepeats(false);
-                }
-            }
-            
-            private void setDirectionAndForceValues(Team team)
-            {
-                int[] directionValues = paint.getDirectionValues(team);
-                int[] forceValues = paint.getForceValues(team);
-                for(int i = 0; i < team.getPlayers().size(); i++)
-                {
-                    team.getTeamMember(i).setDirection(directionValues[i]);
-                    // *100 är för att göra om det till N från kN
-                    team.getTeamMember(i).setForce(forceValues[i]*100);
-                }
-            }
-            
-            private void moveAllObjects(long timeStep)
-            {
-                ArrayList<Player> playerArray = new ArrayList<>();
-                playerArray.addAll(team0.getPlayers());
-                playerArray.addAll(team1.getPlayers());
-                for (Player player : playerArray) {
-                    player.moveObject(timeStep);
-                    checkCollisionWithOtherObjectForPlayer(player);
-                }
-                puck.moveObject(timeStep);
-                checkCollisionWithObjectForPuck();
-            }
-            
-            private void checkCollisionWithOtherObjectForPlayer(Player player)
-            {
-                ArrayList<Player> playerArray = new ArrayList<>();
-                playerArray.addAll(team0.getPlayers());
-                playerArray.addAll(team1.getPlayers());
-                for (Player otherPlayer : playerArray) 
-                {
-                    if(!player.equals(otherPlayer))
-                    {
-                        player.checkCollisionWithObject(otherPlayer, endTurnStepTime);
-                    }
-                }
-                player.checkCollisionWithObject(puck, endTurnStepTime);
-            }
-            
-            private void checkCollisionWithObjectForPuck()
-            {
-                ArrayList<Player> playerArray = new ArrayList<>();
-                playerArray.addAll(team0.getPlayers());
-                playerArray.addAll(team1.getPlayers());
-                for (Player otherPlayer : playerArray) 
-                {
-                    puck.checkCollisionWithObject(otherPlayer, endTurnStepTime);
-                }
-            }
-            
-            private boolean checkAnyMovement()
-            {
-                for(int i = 0; i < team0.getPlayers().size(); i++)
-                {
-                    if(team0.getTeamMember(i).isMoving())
-                    {
-                        return true;
-                    }
-                }
-                for(int i = 0; i < team1.getPlayers().size(); i++)
-                {
-                    if(team1.getTeamMember(i).isMoving())
-                    {
-                        return true;
-                    }
-                }
-                if(puck.isMoving())
-                {
-                    return true;
-                }
-                return false;
-            }
-
-            private void transferData2Paint()
-            {
-                paint.setTeamA(team0);
-                paint.setTeamB(team1);
-                paint.setPuck(new GraphicalCircle(puck.getCoord(), puck.getDiameter()));
+                
+                repaintTimer.start();
             }
         });
+    }
+    
+    class KeyActionEvent extends AbstractAction {
+
+        public KeyActionEvent(String keyStrokeName) {
+            putValue(Action.NAME, keyStrokeName);
+        }
+
+        @Override
+        public void actionPerformed(java.awt.event.ActionEvent e) {
+            if (getValue(Action.NAME).equals("END_TURN")) {
+                endTurn();
+            }
+        }
+    }
+
+    private void endTurn()
+    {
+        if(thisIsAServer)
+        {
+            setDirectionAndForceValues(team0);
+            paint.resetTextField(team0);
+        }
+        else
+        {
+            setDirectionAndForceValues(team1);
+            paint.resetTextField(team1);
+        }
+        endTurnRepaintTimer.setRepeats(true);
+        endTurnRepaintTimer.start();
+    }
+
+    private void endTurnLoop()
+    {
+        if(checkAnyMovement())
+        {
+            moveAllObjects(endTurnStepTime);
+            transferData2Paint();
+            paint.repaint();
+        }
+        else
+        {
+            endTurnRepaintTimer.setRepeats(false);
+        }
+    }
+
+    private void setDirectionAndForceValues(Team team)
+    {
+        int[] directionValues = paint.getDirectionValues(team);
+        int[] forceValues = paint.getForceValues(team);
+        for(int i = 0; i < team.getPlayers().size(); i++)
+        {
+            team.getTeamMember(i).setDirection(directionValues[i]);
+            // *100 är för att göra om det till N från kN
+            team.getTeamMember(i).setForce(forceValues[i]*100);
+        }
+    }
+
+    private void moveAllObjects(long timeStep)
+    {
+        ArrayList<Player> playerArray = new ArrayList<>();
+        playerArray.addAll(team0.getPlayers());
+        playerArray.addAll(team1.getPlayers());
+        for (Player player : playerArray) {
+            player.moveObject(timeStep);
+            checkCollisionWithOtherObjectForPlayer(player);
+        }
+        puck.moveObject(timeStep);
+        checkCollisionWithObjectForPuck();
+    }
+
+    private void checkCollisionWithOtherObjectForPlayer(Player player)
+    {
+        ArrayList<Player> playerArray = new ArrayList<>();
+        playerArray.addAll(team0.getPlayers());
+        playerArray.addAll(team1.getPlayers());
+        for (Player otherPlayer : playerArray) 
+        {
+            if(!player.equals(otherPlayer))
+            {
+                player.checkCollisionWithObject(otherPlayer, endTurnStepTime);
+            }
+        }
+        player.checkCollisionWithObject(puck, endTurnStepTime);
+    }
+
+    private void checkCollisionWithObjectForPuck()
+    {
+        ArrayList<Player> playerArray = new ArrayList<>();
+        playerArray.addAll(team0.getPlayers());
+        playerArray.addAll(team1.getPlayers());
+        for (Player otherPlayer : playerArray) 
+        {
+            puck.checkCollisionWithObject(otherPlayer, endTurnStepTime);
+        }
+    }
+
+    private boolean checkAnyMovement()
+    {
+        for(int i = 0; i < team0.getPlayers().size(); i++)
+        {
+            if(team0.getTeamMember(i).isMoving())
+            {
+                return true;
+            }
+        }
+        for(int i = 0; i < team1.getPlayers().size(); i++)
+        {
+            if(team1.getTeamMember(i).isMoving())
+            {
+                return true;
+            }
+        }
+        if(puck.isMoving())
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private void transferData2Paint()
+    {
+        paint.setTeamA(team0);
+        paint.setTeamB(team1);
+        paint.setPuck(new GraphicalCircle(puck.getCoord(), puck.getDiameter()));
     }
 }

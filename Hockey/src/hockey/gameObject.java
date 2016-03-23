@@ -84,6 +84,8 @@ public class GameObject {
             force = force - kineticFrictionForce;
         }
         double acceleration = force/mass;
+        // Todo: detta är fel. Det ska vara velocity = velocity + acceleration
+        // och för att det ska funka måste force göras om till att vara en stöt
         velocity =+ acceleration;
         double distance = velocity*timeStepInS;
         double movementInX = distance*cos(direction);
