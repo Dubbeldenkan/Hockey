@@ -94,7 +94,7 @@ public class HockeyMain {
                 {
                     try
                     {
-                       server = new Server(6066);
+                       server = new Server(3333);
                     }catch(IOException e)
                     {
                        e.printStackTrace();
@@ -120,6 +120,22 @@ public class HockeyMain {
         @Override
         public void actionPerformed(java.awt.event.ActionEvent e) {
             if (getValue(Action.NAME).equals("END_TURN")) {
+                if(thisIsAServer)
+                {
+                    server.setServerReady(true);
+                    while(!server.isClientReady())
+                    {
+                        int loop = 1;
+                    }
+                }
+                else
+                {
+                    client.setClientReady(true);
+                    while(!client.isServerReady())
+                    {
+                        int loop = 1;
+                    }
+                }
                 endTurn();
             }
         }
