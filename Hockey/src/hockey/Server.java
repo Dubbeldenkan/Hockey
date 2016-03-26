@@ -7,19 +7,23 @@ import java.util.logging.Logger;
 
 public class Server extends Thread
 {
-    private ServerSocket serverSocket;
+    private final ServerSocket serverSocket;
     private Socket server;
+    
+    private final int teamSize = 3;
    
     private boolean clientReady;
-    private double[] clientForceVector;
-    private int[] clientDirectionVector;
+    private double[] clientForceVector = new double[teamSize];
+    private int[] clientDirectionVector = new int[teamSize];
    
     private boolean serverReady;
-    private double[] serverForceVector;
-    private int[] serverDirectionVector;
-    private boolean connected = false;
+    private double[] serverForceVector = new double[teamSize];
+    private int[] serverDirectionVector = new int [teamSize];
    
-    private int sleepTime = 1000;
+    private final int sleepTime = 1000;
+    
+    private boolean hasReceivedData = false;
+    private boolean dataReady = false;
    
     public Server(int port) throws IOException
     {
@@ -40,8 +44,8 @@ public class Server extends Thread
         this.serverDirectionVector = serverDirectionVector;
     }
 
-    public boolean isClientReady() {
-        return clientReady;
+    public boolean isDataReady() {
+        return dataReady;
     }
 
     public double[] getClientForceVector() {
@@ -52,6 +56,12 @@ public class Server extends Thread
         return clientDirectionVector;
     }
     
+    public void resetDataReady()
+    {
+        dataReady = false;
+    }
+    
+    @Override
     public void run()
     {
         while(true)
@@ -59,12 +69,19 @@ public class Server extends Thread
             if(serverReady)
             {
                 sendReadyStatus();
-                receiveReadyStatus();
-                if(clientReady)
+                while(!clientReady)
                 {
-                    //sendPlayerValues();
-                    //receivePlayerValues();
+                    receiveReadyStatus();
                 }
+                sendPlayerValues();
+                while(!hasReceivedData)
+                {
+                    receivePlayerValues();
+                }
+                serverReady = false;
+                clientReady = false;
+                hasReceivedData = false;
+                dataReady = true;
             }                
             
             try {
@@ -89,6 +106,11 @@ public class Server extends Thread
                 DataInputStream in =
                       new DataInputStream(server.getInputStream());
                 System.out.println(in.readUTF());
+                OutputStream outToClient = server.getOutputStream();
+                DataOutputStream out = new DataOutputStream(outToClient);
+                out.writeUTF("Hello from "
+                        + server.getLocalSocketAddress());
+                break;
             }
             catch(SocketTimeoutException s)
             {
@@ -121,10 +143,10 @@ public class Server extends Thread
     {
         try
         {
+            DataOutputStream out =
+                    new DataOutputStream(server.getOutputStream());
             for(int index = 0; index < serverForceVector.length; index++)
             {
-                DataOutputStream out =
-                    new DataOutputStream(server.getOutputStream());
                 out.writeDouble(serverForceVector[index]);
                 out.writeInt(serverDirectionVector[index]);
             }
@@ -143,6 +165,26 @@ public class Server extends Thread
             DataInputStream in =
                     new DataInputStream(inFromClient);
             clientReady = in.readBoolean();
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+    
+    public void receivePlayerValues()
+    {
+        try
+        {
+            InputStream inFromClient = server.getInputStream();
+            for(int index = 0; index < teamSize; index++)
+            {
+                DataInputStream in =
+                        new DataInputStream(inFromClient);
+                clientForceVector[index] = in.readDouble();
+                clientDirectionVector[index] = in.readInt();
+            }
+            hasReceivedData = true;
         }
         catch(IOException e)
         {

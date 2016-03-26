@@ -8,7 +8,6 @@ public class Hockey {
     public static void main(String[] args) {
         boolean thisIsAServer = true;
         new HockeyMain(thisIsAServer);
-        // TODO code application logic here
     }
     
 }

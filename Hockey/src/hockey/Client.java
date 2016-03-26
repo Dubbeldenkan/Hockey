@@ -8,19 +8,23 @@ import java.util.logging.Logger;
 public class Client extends Thread{
     
     private Socket client;
-    private int port;
-    private String serverName;
+    private final int port;
+    private final String serverName;
     
+    private final int teamSize = 3;
+   
     private boolean clientReady;
-    private double[] clientForceVector;
-    private int[] clientDirectionVector;
+    private double[] clientForceVector = new double[teamSize];
+    private int[] clientDirectionVector = new int[teamSize];
    
     private boolean serverReady;
-    private double[] serverForceVector;
-    private int[] serverDirectionVector;
-    private boolean connected = false;
+    private double[] serverForceVector = new double[teamSize];
+    private int[] serverDirectionVector = new int [teamSize];
+    
+    private boolean hasReceivedData = false;
+    private boolean dataReady = false;
    
-    private int sleepTime = 1000;
+    private final int sleepTime = 1000;
 
     public Client(String serverName, int port)
     {
@@ -29,8 +33,8 @@ public class Client extends Thread{
         setupClient();
     }
 
-    public boolean isServerReady() {
-        return serverReady;
+    public boolean isDataReady() {
+        return dataReady;
     }
 
     public double[] getServerForceVector() {
@@ -53,6 +57,12 @@ public class Client extends Thread{
         this.clientDirectionVector = clientDirectionVector;
     }
     
+    public void resetDataReady()
+    {
+        dataReady = false;
+    }
+    
+    @Override
     public void run()
     {
         while(true)
@@ -60,12 +70,19 @@ public class Client extends Thread{
             if(clientReady)
             {
                 sendReadyStatus();
-                receiveReadyStatus();
-                if(serverReady)
+                while(!serverReady)
                 {
-                    //sendPlayerValues();
-                    //receivePlayerValues();
+                    receiveReadyStatus();
                 }
+                sendPlayerValues();
+                while(!hasReceivedData)
+                {
+                    receivePlayerValues();
+                }
+                serverReady = false;
+                clientReady = false;
+                hasReceivedData = false;
+                dataReady = true;
             }                
             
             try {
@@ -95,11 +112,12 @@ public class Client extends Thread{
                 DataInputStream in =
                         new DataInputStream(inFromServer);
                 System.out.println("Server says " + in.readUTF());
-                client.close();
+                break;
             }
             catch(IOException e)
             {
                 e.printStackTrace();
+                break;
             }
         }
     }
@@ -144,6 +162,44 @@ public class Client extends Thread{
             DataInputStream in =
                     new DataInputStream(inFromServer);
             serverReady = in.readBoolean();
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+    
+    public void sendPlayerValues()
+    {
+        try
+        {
+            for(int index = 0; index < teamSize; index++)
+            {
+                DataOutputStream out =
+                    new DataOutputStream(client.getOutputStream());
+                out.writeDouble(clientForceVector[index]);
+                out.writeInt(clientDirectionVector[index]);
+            }
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+    
+    public void receivePlayerValues()
+    {
+        try
+        {
+            InputStream inFromServer = client.getInputStream();
+            for(int index = 0; index < teamSize; index++)
+            {
+                DataInputStream in =
+                        new DataInputStream(inFromServer);
+                serverForceVector[index] = in.readDouble();
+                serverDirectionVector[index] = in.readInt();
+            }
+            hasReceivedData = true;
         }
         catch(IOException e)
         {

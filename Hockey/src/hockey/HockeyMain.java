@@ -95,15 +95,17 @@ public class HockeyMain {
                     try
                     {
                        server = new Server(3333);
+                       server.start();
                     }catch(IOException e)
                     {
                        e.printStackTrace();
                     }
-                    server.run();
                 }
                 else
                 {
-                    client = new Client("localhost", 6066);
+                    client = new Client("dennis", 3333);
+                    //client = new Client("DENNIS-LILLA", 3333);
+                    client.start();
                 }
                 
                 repaintTimer.start();
@@ -120,24 +122,46 @@ public class HockeyMain {
         @Override
         public void actionPerformed(java.awt.event.ActionEvent e) {
             if (getValue(Action.NAME).equals("END_TURN")) {
-                if(thisIsAServer)
-                {
-                    server.setServerReady(true);
-                    while(!server.isClientReady())
-                    {
-                        int loop = 1;
-                    }
-                }
-                else
-                {
-                    client.setClientReady(true);
-                    while(!client.isServerReady())
-                    {
-                        int loop = 1;
-                    }
-                }
                 endTurn();
             }
+        }
+    }
+    
+    private void receiveValuesFromOpponent()
+    {
+        if(thisIsAServer)
+        {
+            server.setServerForceVector(team0.getForceVector());
+            server.setServerDirectionVector(team0.getDirectionVector());
+            server.setServerReady(true);
+            while(!server.isDataReady())
+            {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(HockeyMain.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }  
+            team1.setPlayersValues(server.getClientForceVector(), 
+                    server.getClientDirectionVector());
+            server.resetDataReady();
+        }
+        else
+        {
+            client.setClientForceVector(team1.getForceVector());
+            client.setClientDirectionVector(team1.getDirectionVector());
+            client.setClientReady(true);
+            while(!client.isDataReady())
+            {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(HockeyMain.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            team0.setPlayersValues(client.getServerForceVector(), 
+                    client.getServerDirectionVector());
+            client.resetDataReady();
         }
     }
 
@@ -153,6 +177,7 @@ public class HockeyMain {
             setDirectionAndForceValues(team1);
             paint.resetTextField(team1);
         }
+        receiveValuesFromOpponent();
         endTurnRepaintTimer.setRepeats(true);
         endTurnRepaintTimer.start();
     }
