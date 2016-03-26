@@ -30,9 +30,11 @@ public class HockeyMain {
     private int teamSize = 3;
     final private int paintFreq = 1;
     final private int endTurnStepTime = 10;
+    final private boolean testWithoutNetwork;
 
-    public HockeyMain(boolean thisIsAServer) {
+    public HockeyMain(boolean thisIsAServer, boolean testWithoutNetwork) {
         this.thisIsAServer = thisIsAServer;
+        this.testWithoutNetwork = testWithoutNetwork;
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -90,7 +92,7 @@ public class HockeyMain {
                 //initiera puck
                 puck = new Puck(new Coord(50, 25));
                 
-                if(thisIsAServer)
+                if(thisIsAServer && !testWithoutNetwork)
                 {
                     try
                     {
@@ -101,7 +103,7 @@ public class HockeyMain {
                        e.printStackTrace();
                     }
                 }
-                else
+                else if(!testWithoutNetwork)
                 {
                     client = new Client("dennis", 3333);
                     //client = new Client("DENNIS-LILLA", 3333);
@@ -167,7 +169,7 @@ public class HockeyMain {
 
     private void endTurn()
     {
-        if(thisIsAServer)
+        if(thisIsAServer || testWithoutNetwork)
         {
             setDirectionAndForceValues(team0);
             paint.resetTextField(team0);
@@ -177,7 +179,10 @@ public class HockeyMain {
             setDirectionAndForceValues(team1);
             paint.resetTextField(team1);
         }
-        receiveValuesFromOpponent();
+        if(!testWithoutNetwork)
+        {
+            receiveValuesFromOpponent();
+        }
         endTurnRepaintTimer.setRepeats(true);
         endTurnRepaintTimer.start();
     }

@@ -7,7 +7,8 @@ public class Hockey {
      */
     public static void main(String[] args) {
         boolean thisIsAServer = true;
-        new HockeyMain(thisIsAServer);
+        boolean testWithoutNetwork = false;
+        new HockeyMain(thisIsAServer, testWithoutNetwork);
     }
     
 }
