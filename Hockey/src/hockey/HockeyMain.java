@@ -169,7 +169,7 @@ public class HockeyMain {
 
     private void endTurn()
     {
-        if(thisIsAServer || testWithoutNetwork)
+        if(thisIsAServer)
         {
             setDirectionAndForceValues(team0);
             paint.resetTextField(team0);

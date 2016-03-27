@@ -181,6 +181,19 @@ public class Paint extends JPanel {
                 rinkHeightStart, blueLineWidth, rinkHeight);
         g2d.fillRect((int) (rinkWidthStart + rinkWidth*0.625), 
                 rinkHeightStart, blueLineWidth, rinkHeight);
+        //måla mål
+        g2d.setColor(Color.LIGHT_GRAY);
+        int xSizeGoal = (int) rinkWidth/15;
+        int ySizeGoal = (int) rinkHeight/5;
+        g2d.fillRoundRect(rinkWidthStart - xSizeGoal/2, rinkHeightStart - ySizeGoal/2 + rinkHeight/2,
+                xSizeGoal, ySizeGoal, xSizeGoal/5, ySizeGoal/5);
+        g2d.fillRoundRect(rinkWidthStart - xSizeGoal/2 + rinkWidth, rinkHeightStart - ySizeGoal/2 + rinkHeight/2,
+                xSizeGoal, ySizeGoal, xSizeGoal/5, ySizeGoal/5);
+        g2d.setColor(Color.BLACK);
+        g2d.drawLine(rinkWidthStart, rinkHeightStart + rinkHeight/2 - ySizeGoal, 
+                rinkWidthStart, rinkHeightStart + rinkHeight/2 + ySizeGoal);
+        g2d.drawLine(rinkWidthStart + rinkWidth, rinkHeightStart + rinkHeight/2 - ySizeGoal, 
+                rinkWidthStart + rinkWidth, rinkHeightStart + rinkHeight/2 + ySizeGoal);
         
         g2d.dispose();
     }
@@ -208,7 +221,7 @@ public class Paint extends JPanel {
         }
         else
         {
-            xCoord = (int) rinkWidthStart*6/5 + rinkWidth;
+            xCoord = (int) rinkWidthStart*7/5 + rinkWidth;
         }
         Graphics2D g2d = (Graphics2D) g.create();
         g2d.setColor(Color.YELLOW);
@@ -232,7 +245,7 @@ public class Paint extends JPanel {
         }
         else
         {
-            xPosForTextFields = rinkWidthStart*11/10 + rinkWidth;
+            xPosForTextFields = rinkWidthStart*7/5 + rinkWidth;
         }
         for(int yPos = 0; yPos < teamSize; yPos++)
         {
