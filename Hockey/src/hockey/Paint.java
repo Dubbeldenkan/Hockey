@@ -32,12 +32,14 @@ public class Paint extends JPanel {
     private Team team1;
     private GraphicalCircle puck;
     private final boolean thisIsAServer;
+    private final RinkInput rinkInput;
     //final private Timer repaintTimer;
     
     //final private int paintFreq = 25;
 
     public Paint(int teamSize, boolean thisIsAServer) {  
         this.thisIsAServer = thisIsAServer;
+        this.rinkInput = new RinkInput();
         directionTextField = new JTextField[teamSize];
         forceTextField = new JTextField[teamSize];
         directionValue = new int[teamSize];
@@ -183,12 +185,14 @@ public class Paint extends JPanel {
                 rinkHeightStart, blueLineWidth, rinkHeight);
         //måla mål
         g2d.setColor(Color.LIGHT_GRAY);
-        int xSizeGoal = (int) rinkWidth/15;
-        int ySizeGoal = (int) rinkHeight/5;
+        int xSizeGoal = (int) (rinkWidth/rinkInput.xSizeGoalDenominator);
+        int ySizeGoal = (int) (rinkHeight/rinkInput.ySizeGoalDenominator);
         g2d.fillRoundRect(rinkWidthStart - xSizeGoal/2, rinkHeightStart - ySizeGoal/2 + rinkHeight/2,
-                xSizeGoal, ySizeGoal, xSizeGoal/5, ySizeGoal/5);
+                xSizeGoal, ySizeGoal, xSizeGoal/rinkInput.xSizeGoalArcDenominator, 
+                ySizeGoal/rinkInput.ySizeGoalArcDenominator);
         g2d.fillRoundRect(rinkWidthStart - xSizeGoal/2 + rinkWidth, rinkHeightStart - ySizeGoal/2 + rinkHeight/2,
-                xSizeGoal, ySizeGoal, xSizeGoal/5, ySizeGoal/5);
+                xSizeGoal, ySizeGoal, xSizeGoal/rinkInput.xSizeGoalArcDenominator, 
+                ySizeGoal/rinkInput.ySizeGoalArcDenominator);
         g2d.setColor(Color.BLACK);
         g2d.drawLine(rinkWidthStart, rinkHeightStart + rinkHeight/2 - ySizeGoal, 
                 rinkWidthStart, rinkHeightStart + rinkHeight/2 + ySizeGoal);
