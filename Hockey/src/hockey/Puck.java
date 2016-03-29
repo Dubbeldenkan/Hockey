@@ -3,10 +3,27 @@ package hockey;
 public class Puck extends GameObject{
 
     private RinkInput rinkInput;
+    private boolean goalDone;
+    private int teamThatScored;
     
     public Puck(Coord coord) {
         super(coord, 3, 30);
         this.rinkInput = new RinkInput();
+    }
+    
+    public void resetGoalDone()
+    {
+        goalDone = false;
+    }
+    
+    public boolean isGoalDone()
+    {
+        return goalDone;
+    }
+    
+    public int getTeamThatScored()
+    {
+        return teamThatScored;
     }
     
     @Override
@@ -22,7 +39,8 @@ public class Puck extends GameObject{
             }
             else if(nextXPos < (0 - 2*radius))
             {
-                int i = 0;
+                goalDone = true;
+                teamThatScored = 1;
             }
         }
         else if(((nextXPos + radius) > 100) &&
@@ -35,7 +53,8 @@ public class Puck extends GameObject{
             }
             else if(nextXPos > (100 + 2*radius))
             {
-                int i = 0;
+                goalDone = true;
+                teamThatScored = 0;
             }
         }
         if(((nextYPos - radius) < 0) && 

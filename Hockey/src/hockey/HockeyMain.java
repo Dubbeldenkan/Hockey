@@ -194,11 +194,33 @@ public class HockeyMain {
             moveAllObjects(endTurnStepTime);
             transferData2Paint();
             paint.repaint();
+            if(puck.isGoalDone())
+            {
+                goalIsDone();
+            }
         }
         else
         {
             endTurnRepaintTimer.setRepeats(false);
         }
+    }
+    
+    private void goalIsDone()
+    {
+        if(puck.getTeamThatScored() == 0)
+        {
+            team0.addPoint();
+        }
+        else if(puck.getTeamThatScored() == 1)
+        {
+            team1.addPoint();
+        }
+        resetObjects();
+    }
+    
+    private void resetObjects()
+    {
+        puck.resetGoalDone();
     }
 
     private void setDirectionAndForceValues(Team team)
