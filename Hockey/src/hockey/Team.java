@@ -18,8 +18,8 @@ public class Team {
         this.players = players;
     }
 
-    public void setPoints(int points) {
-        this.points = points;
+    public void addPoint() {
+        this.points = points + 1;
     }
 
     public ArrayList<Player> getPlayers() {
