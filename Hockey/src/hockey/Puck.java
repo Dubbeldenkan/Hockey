@@ -2,7 +2,7 @@ package hockey;
 
 public class Puck extends GameObject{
 
-    private RinkInput rinkInput;
+    private final RinkInput rinkInput;
     private boolean goalDone;
     private int teamThatScored;
     
@@ -11,9 +11,10 @@ public class Puck extends GameObject{
         this.rinkInput = new RinkInput();
     }
     
-    public void resetGoalDone()
+    public void reset()
     {
         goalDone = false;
+        resetObject();
     }
     
     public boolean isGoalDone()

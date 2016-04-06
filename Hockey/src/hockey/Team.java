@@ -71,4 +71,12 @@ public class Team {
         }
         return vector;
     }
+    
+    public void resetTeam()
+    {
+        for(Player player :players)
+        {
+            player.resetObject();
+        }
+    }
 }

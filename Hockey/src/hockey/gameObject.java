@@ -2,10 +2,11 @@ package hockey;
 
 public class GameObject {
     
-        public GameObject(Coord coord, int diameter, float mass) {
-        this.coord = coord;
+        public GameObject(Coord startCoord, int diameter, float mass) {
+        this.coord = startCoord;
         this.diameter = diameter;
         this.mass = mass;
+        this.startPosition = new Coord(startCoord); 
     }
     
     protected Coord coord;
@@ -15,6 +16,7 @@ public class GameObject {
     protected double force = 0;
     protected double velocity = 0;
     protected int direction;
+    private final Coord startPosition;
 
     public void setCoord(Coord coord) {
         this.coord = coord;
@@ -314,5 +316,13 @@ public class GameObject {
     private double sin(double angle)
     {
         return Math.sin(angle*Math.PI/180);
+    }
+    
+        
+    public void resetObject()
+    {
+        this.coord = startPosition;
+        this.force = 0;
+        this.velocity = 0;
     }
 }

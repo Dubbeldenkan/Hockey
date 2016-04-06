@@ -220,7 +220,10 @@ public class HockeyMain {
     
     private void resetObjects()
     {
-        puck.resetGoalDone();
+        puck.reset();
+        team0.resetTeam();
+        team1.resetTeam();
+        paint.repaint();
     }
 
     private void setDirectionAndForceValues(Team team)

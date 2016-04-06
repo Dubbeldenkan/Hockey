@@ -7,6 +7,12 @@ public class Coord {
         this.x = x;
         this.y = y;
     }
+    
+    public Coord(Coord coord)
+    {
+        this.x = coord.getX();
+        this.y = coord.getY();
+    }
 
     private double x;
     private double y;
