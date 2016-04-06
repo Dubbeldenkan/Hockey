@@ -57,13 +57,17 @@ public class Puck extends GameObject{
                 teamThatScored = 0;
             }
         }
-        if(((nextYPos - radius) < 0) && 
-                (direction > 180))
+        if((((nextYPos - radius) < 0)  && 
+                (direction > 180)) || 
+                (((nextYPos - radius) < (25 - rinkInput.ySizeGoalDenominator/2)) &&
+                ((nextXPos > 100) || (nextXPos < 0))))
         {
             direction = (360 - direction)%360;
         }
-        else if(((nextYPos + radius) > 50) &&
-                (direction < 180))
+        else if((((nextYPos + radius) > 50) &&
+                (direction < 180)) || 
+                (((nextYPos + radius) > (25 + rinkInput.ySizeGoalDenominator/2)) &&
+                ((nextXPos > 100) || (nextXPos < 0))))
         {
             direction = (360 - direction)%360;
         }
