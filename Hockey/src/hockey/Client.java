@@ -16,6 +16,7 @@ public class Client extends Thread{
     private boolean clientReady;
     private double[] clientForceVector = new double[teamSize];
     private int[] clientDirectionVector = new int[teamSize];
+    private boolean dataIsSet;
    
     private boolean serverReady;
     private double[] serverForceVector = new double[teamSize];
@@ -23,8 +24,6 @@ public class Client extends Thread{
     
     private boolean hasReceivedData = false;
     private boolean dataReady = false;
-   
-    private final int sleepTime = 1000;
 
     public Client(String serverName, int port)
     {
@@ -44,17 +43,26 @@ public class Client extends Thread{
     public int[] getServerDirectionVector() {
         return serverDirectionVector;
     }
-
-    public void setClientReady(boolean clientReady) {
-        this.clientReady = clientReady;
+    
+    public boolean isServerReady()
+    {
+        return serverReady;
     }
 
-    public void setClientForceVector(double[] clientForceVector) {
+    public void toggleClientReady() {
+        clientReady = !clientReady;
+        sendReadyStatus();
+    }
+    
+    public boolean isClientReady()
+    {
+        return clientReady;
+    }
+
+    public void setClientForceAndDirectionVector(double[] clientForceVector, int[] clientDirectionVector) {
         this.clientForceVector = clientForceVector;
-    }
-
-    public void setClientDirectionVector(int[] clientDirectionVector) {
         this.clientDirectionVector = clientDirectionVector;
+        dataIsSet = true;
     }
     
     public void resetDataReady()
@@ -67,29 +75,31 @@ public class Client extends Thread{
     {
         while(true)
         {
-            if(clientReady)
+            receiveReadyStatus();
+            System.out.println("Received readyStatus: " + serverReady);
+            while(!clientReady && serverReady)
+            {}
+            if(!serverReady)
             {
-                sendReadyStatus();
-                while(!serverReady)
-                {
-                    receiveReadyStatus();
-                }
-                sendPlayerValues();
-                while(!hasReceivedData)
-                {
-                    receivePlayerValues();
-                }
-                serverReady = false;
-                clientReady = false;
-                hasReceivedData = false;
-                dataReady = true;
-            }                
-            
-            try {
-                Thread.sleep(sleepTime);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                break;
             }
+            while(!dataIsSet)
+            {
+                System.out.println("Data is not set");
+            }
+            System.out.println("trying to receive data");
+            sendPlayerValues();
+            while(!hasReceivedData)
+            {
+                receivePlayerValues();
+            }
+            System.out.println("Has recevied data: " + serverForceVector[0] + " " + 
+                    serverForceVector[1] + " " + serverForceVector[2]);
+            clientReady = false;
+            serverReady = false;
+            hasReceivedData = false;
+            dataIsSet = false;
+            dataReady = true;
         }
     }
     
@@ -180,6 +190,8 @@ public class Client extends Thread{
                 out.writeDouble(clientForceVector[index]);
                 out.writeInt(clientDirectionVector[index]);
             }
+            System.out.println("Sending data: " + clientForceVector[0] + " " + 
+                clientForceVector[1] + " " + clientForceVector[2]);
         }
         catch(IOException e)
         {

@@ -32,4 +32,9 @@ public class Coord {
     public double getY() {
         return y;
     }
+    
+    public Coord getValues()
+    {
+        return new Coord(x, y);
+    }
 }

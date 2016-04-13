@@ -321,7 +321,7 @@ public class GameObject {
         
     public void resetObject()
     {
-        this.coord = startPosition;
+        this.coord = startPosition.getValues();
         this.force = 0;
         this.velocity = 0;
     }

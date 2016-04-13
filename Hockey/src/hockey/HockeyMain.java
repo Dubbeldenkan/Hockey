@@ -27,6 +27,7 @@ public class HockeyMain {
     private Team team1;
     private Puck puck;
     final private boolean thisIsAServer;
+    private boolean testIsReady;
     private int teamSize = 3;
     final private int paintFreq = 1;
     final private int endTurnStepTime = 10;
@@ -71,7 +72,7 @@ public class HockeyMain {
                     }
                 });
                 endTurnRepaintTimer.setInitialDelay(0);
-                endTurnRepaintTimer.setRepeats(false);
+                endTurnRepaintTimer.setRepeats(true);
                 endTurnRepaintTimer.setCoalesce(true);
                 
                 // initiera
@@ -109,8 +110,13 @@ public class HockeyMain {
                     //client = new Client("DENNIS-LILLA", 3333);
                     client.start();
                 }
+                else
+                {
+                    testIsReady = false;
+                }
                 
                 repaintTimer.start();
+                endTurnRepaintTimer.start();
             }
         });
     }
@@ -124,8 +130,26 @@ public class HockeyMain {
         @Override
         public void actionPerformed(java.awt.event.ActionEvent e) {
             if (getValue(Action.NAME).equals("END_TURN")) {
+                toggleReady();
                 endTurn();
             }
+        }
+    }
+    
+    private void toggleReady()
+    {
+        System.out.println("in toggleReady");
+        if(testWithoutNetwork)
+        {
+            testIsReady = true;
+        }
+        else if(thisIsAServer)
+        {
+            server.toogleServerReady();
+        }
+        else
+        {
+            client.toggleClientReady();
         }
     }
     
@@ -133,9 +157,6 @@ public class HockeyMain {
     {
         if(thisIsAServer)
         {
-            server.setServerForceVector(team0.getForceVector());
-            server.setServerDirectionVector(team0.getDirectionVector());
-            server.setServerReady(true);
             while(!server.isDataReady())
             {
                 try {
@@ -150,9 +171,6 @@ public class HockeyMain {
         }
         else
         {
-            client.setClientForceVector(team1.getForceVector());
-            client.setClientDirectionVector(team1.getDirectionVector());
-            client.setClientReady(true);
             while(!client.isDataReady())
             {
                 try {
@@ -173,23 +191,43 @@ public class HockeyMain {
         {
             setDirectionAndForceValues(team0);
             paint.resetTextField(team0);
+            server.setServerForceAndDirectionVector(team0.getForceVector(),team0.getDirectionVector());
         }
         else
         {
             setDirectionAndForceValues(team1);
             paint.resetTextField(team1);
+            client.setClientForceAndDirectionVector(team1.getForceVector(), team1.getDirectionVector());
         }
         if(!testWithoutNetwork)
         {
             receiveValuesFromOpponent();
         }
-        endTurnRepaintTimer.setRepeats(true);
-        endTurnRepaintTimer.start();
+        testIsReady = false;
     }
 
     private void endTurnLoop()
     {
-        if(checkAnyMovement())
+        boolean readyToMove = false;
+        if(!checkAnyMovement())
+        {
+            if(testWithoutNetwork)
+            {
+                if(testIsReady)
+                {
+                    readyToMove = true;
+                }
+            }
+            else if(thisIsAServer)
+            {
+                readyToMove = server.isDataReady();
+            }
+            else
+            {
+                readyToMove = client.isDataReady();
+            }
+        }
+        if(checkAnyMovement() || readyToMove)
         {
             moveAllObjects(endTurnStepTime);
             transferData2Paint();
@@ -198,10 +236,6 @@ public class HockeyMain {
             {
                 goalIsDone();
             }
-        }
-        else
-        {
-            endTurnRepaintTimer.setRepeats(false);
         }
     }
     
